@@ -1,6 +1,6 @@
-// Person 4 (C4) — fetch single product
+import { apiGet } from './api';
+
 export async function getProduct(id) {
-  const { apiGet } = await import('./api');
   const data = await apiGet(`/products/${id}`);
   return data.product;
 }
