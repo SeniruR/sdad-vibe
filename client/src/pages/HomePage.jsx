@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { apiGet } from '../services/api';
 
-// Person 1 (C1) — replace with assignment-specific landing page
+// Person 1 (C1) — replace with CeylonCart landing page
 export default function HomePage() {
   const [apiStatus, setApiStatus] = useState('checking...');
 
@@ -13,15 +14,16 @@ export default function HomePage() {
 
   return (
     <div style={styles.container}>
-      <h1 style={styles.title}>Welcome to VIBECODING</h1>
+      <h1 style={styles.title}>Welcome to CeylonCart</h1>
       <p style={styles.subtitle}>
-        Base scaffold is ready. Replace this page when the assignment topic is known.
+        Sri Lankan tea, spices, handicrafts &amp; apparel — delivered to your door.
       </p>
+      <Link to="/products" style={styles.cta}>Browse Products</Link>
       <div style={styles.status}>
         API status: <strong>{apiStatus}</strong>
       </div>
       <p style={styles.hint}>
-        Person 1: use <code>docs/PROMPTS-C1.md</code> to build the real home page.
+        Person 1: use <code>docs/PROMPTS-C1.md</code> to polish this page.
       </p>
     </div>
   );
@@ -29,8 +31,17 @@ export default function HomePage() {
 
 const styles = {
   container: { textAlign: 'center', padding: '3rem 1rem' },
-  title: { fontSize: '2rem', marginBottom: '0.5rem', color: '#1a1a2e' },
-  subtitle: { color: '#666', marginBottom: '2rem' },
+  title: { fontSize: '2rem', marginBottom: '0.5rem', color: '#1a472a' },
+  subtitle: { color: '#666', marginBottom: '2rem', maxWidth: '480px', margin: '0 auto 2rem' },
+  cta: {
+    display: 'inline-block',
+    padding: '0.75rem 1.5rem',
+    backgroundColor: '#1a472a',
+    color: '#fff',
+    borderRadius: '8px',
+    textDecoration: 'none',
+    marginBottom: '2rem',
+  },
   status: {
     display: 'inline-block',
     padding: '0.75rem 1.5rem',

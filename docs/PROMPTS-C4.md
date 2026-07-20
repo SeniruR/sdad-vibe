@@ -1,53 +1,88 @@
-# Person 4 — C4 Detail (3 prompts)
+# Person 4 — C4 Detail, Payment & Confirmation (4 prompts)
 
-**Branch:** `feat/c4-detail`
+**Branch:** `feat/c4-detail`  
+**Covers:** FR2 (product detail + Add to Cart), FR5 (mock payment), FR6 (order confirmation)
 
 **Files you own:**
 - `server/controllers/c4.detailController.js`
 - `server/routes/c4.detail.routes.js`
-- `client/src/components/c4-detail/EntityDetail.jsx`
-- `client/src/services/detailService.js`
+- `server/controllers/c4.paymentController.js`
+- `server/routes/c4.payment.routes.js`
+- `client/src/components/c4-detail/ProductDetail.jsx`
 - `client/src/pages/DetailPage.jsx`
-- `client/src/routes/routeRegistry.js` (SLOT C4 only)
+- `client/src/pages/PaymentPage.jsx`
+- `client/src/pages/ConfirmationPage.jsx`
+- `client/src/services/paymentService.js`
+- `client/src/services/detailService.js`
+- `client/src/routes/routeRegistry.jsx` (SLOT C4 only)
+
+**Uses:** `useCart()` from `client/src/context/CartContext.jsx` (built by Person 3)
 
 ---
 
-## Prompt 1 — Detail API
+## Prompt 1 — Product Detail API + Page (FR2)
 
 ```
-Implement GET and optional DELETE for /api/[entity]/:id.
+Backend — server/controllers/c4.detailController.js:
+- getById: import getById from entityStore, return { product } or 404
+- Remove the delete handler (not needed for e-commerce)
 
-In server/controllers/c4.detailController.js:
-- Import getById, remove from server/models/entityStore.js
-- getById: return item or 404
-- remove (optional): delete and return 204 or 404
+Frontend — client/src/pages/DetailPage.jsx + ProductDetail.jsx:
+- useParams for id, fetch product via detailService.getProduct(id)
+- Show image, name, category, price, full description
+- "Add to Cart" button: calls useCart().addItem(product, 1), show brief "Added!" feedback
+- "Back to Products" link to /products
+- Handle loading, error, not found states
 
-In server/routes/c4.detail.routes.js:
-- GET /:id and DELETE /:id
+Update client/src/services/detailService.js with getProduct(id) calling GET /api/products/:id
 ```
 
-## Prompt 2 — EntityDetail Component
+## Prompt 2 — Mock Payment (FR5)
 
 ```
-Create client/src/components/c4-detail/EntityDetail.jsx.
+Backend — server/controllers/c4.paymentController.js:
+- POST /process accepts { orderId, cardNumber, cardName }
+- If cardNumber ends with "0000" → return { success: false, message: "Payment declined" }
+- Otherwise → return { success: true, message: "Payment successful" }
+- Update order in orderStore: set paymentStatus to "success" or "failed"
 
-Props: item (object), onDelete (optional callback)
-
-Display all [entity] fields in a clean layout.
-"Back to list" link to /list.
-Optional "Delete" button calling onDelete.
+Frontend — client/src/pages/PaymentPage.jsx:
+- Fake card form: card number, name on card, "Pay Now" button
+- Read orderId from location.state or localStorage (set by checkout)
+- Call paymentService.processPayment()
+- On success → navigate to /confirmation/:orderId
+- On failure → show error message, allow retry
+- Label clearly: "Simulated Payment — no real charges"
 ```
 
-## Prompt 3 — Detail Page + Route
+## Prompt 3 — Order Confirmation (FR6)
 
 ```
-Create client/src/services/detailService.js with getItem(id) and deleteItem(id).
+Create client/src/pages/ConfirmationPage.jsx for CeylonCart.
 
-Create client/src/pages/DetailPage.jsx:
-- useParams for id
-- Fetch item on mount, handle loading/error/not found
-- Render EntityDetail
-- Delete redirects to /list
+- useParams for orderId
+- Fetch order via orderService.getOrder(orderId)
+- Display:
+  - "Order Confirmed!" heading with order ID prominently shown
+  - Customer details (name, address, contact)
+  - Items list with quantities and prices
+  - Order total
+  - Payment status
+- "Continue Shopping" button to /products
+- Clear cart using useCart() after successful confirmation
+- Handle order not found
+```
 
-In routeRegistry.jsx SLOT C4, add route "/detail/:id" with DetailPage inside Layout.
+## Prompt 4 — Register Routes
+
+```
+In client/src/routes/routeRegistry.jsx, fill in SLOT C4:
+- Import DetailPage, PaymentPage, ConfirmationPage
+- Add routes:
+  - path "/products/:id" → DetailPage inside Layout
+  - path "/payment" → PaymentPage inside Layout
+  - path "/confirmation/:orderId" → ConfirmationPage inside Layout
+
+Do not edit SLOT C1, C2, or C3.
+Also update client/src/services/paymentService.js with processPayment() calling POST /api/payment/process
 ```

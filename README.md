@@ -1,6 +1,6 @@
-# VIBECODING Assignment — Base Scaffold
+# CeylonCart — VIBECODING E-Commerce MVP
 
-App-agnostic full-stack starter for parallel component development. Works for marketplace, todo, blog, booking, or any CRUD-style assignment.
+Full-stack starter for **IS4105 / CS4127** assignment. React + Vite frontend, Node + Express backend, in-memory data store.
 
 ## Structure
 
@@ -8,7 +8,7 @@ App-agnostic full-stack starter for parallel component development. Works for ma
 my-website/
 ├── client/          React + Vite frontend
 ├── server/          Node + Express API
-└── docs/            Kickoff checklist + per-person prompt sheets
+└── docs/            API contract, task split, per-person prompts
 ```
 
 ## Quick Start
@@ -25,54 +25,46 @@ npm install
 npm run dev
 ```
 
-Open http://localhost:5173 — Home page should show "API connected" if backend is running.
+Open http://localhost:5173
 
-## 4 Components (one per person)
+## 4 Components
 
-| Person | Branch | Owns | Prompts |
-|--------|--------|------|---------|
-| 1 | `feat/c1-layout` | Layout, Header, HomePage | `docs/PROMPTS-C1.md` |
-| 2 | `feat/c2-list` | List API + ListPage | `docs/PROMPTS-C2.md` |
-| 3 | `feat/c3-create` | Create API + Form | `docs/PROMPTS-C3.md` |
-| 4 | `feat/c4-detail` | Detail API + DetailPage | `docs/PROMPTS-C4.md` |
+| Person | Branch | FRs | Prompts |
+|--------|--------|-----|---------|
+| 1 | `feat/c1-layout` | Layout, Home | `docs/PROMPTS-C1.md` (3) |
+| 2 | `feat/c2-list` | FR1 — catalogue | `docs/PROMPTS-C2.md` (4) |
+| 3 | `feat/c3-cart` | FR3, FR4 — cart & checkout | `docs/PROMPTS-C3.md` (4) |
+| 4 | `feat/c4-detail` | FR2, FR5, FR6 — detail, payment, confirm | `docs/PROMPTS-C4.md` (4) |
 
-## Assignment Kickoff (first 5 minutes)
+See `docs/TASKS.md` for full requirement mapping.
 
-1. Read the assignment topic together
-2. Fill in `docs/API-CONTRACT.md` (entity name + fields)
-3. Replace `[ENTITY]` / `[ASSIGNMENT_TOPIC]` in your prompt sheet
-4. Each person: `git checkout -b feat/cX-...` and start prompting
+## Key docs
 
-See `docs/KICKOFF.md` for the full checklist.
+- **Team guide:** `TEAM-Guide.md` — start here
+- **Kickoff:** `docs/KICKOFF.md`
+- **API contract:** `docs/API-CONTRACT.md`
+- **Task split:** `docs/TASKS.md`
 
 ## GitHub Merge Order
 
-Merge PRs in this order to minimize conflicts:
-
 1. `feat/c1-layout` → main
 2. `feat/c2-list` → main
-3. `feat/c3-create` → main
+3. `feat/c3-cart` → main
 4. `feat/c4-detail` → main
 
-Only expected conflict: `client/src/routes/routeRegistry.jsx` — keep all 4 route exports.
-
-## 1-Hour Timeline
+## 3-Hour Timeline (assignment window)
 
 | Time | Activity |
 |------|----------|
-| 0:00–0:05 | Kickoff — name entity, assign branches |
-| 0:05–0:45 | Parallel build (3–4 prompts each) |
-| 0:45–0:52 | Merge all 4 PRs |
-| 0:52–0:58 | Smoke test full flow |
-| 0:58–1:00 | Demo |
+| 0:00–0:15 | Clone, setup, assign branches |
+| 0:15–2:00 | Parallel build (3–4 prompts each) |
+| 2:00–2:30 | Merge all 4 PRs + fix conflicts |
+| 2:30–3:00 | Smoke test, screen recording, report screenshots |
 
-## Git Setup
+## Seeded Products
 
-```bash
-git init
-git add .
-git commit -m "chore: VIBECODING base scaffold"
-# Create repo on GitHub, then:
-git remote add origin <your-repo-url>
-git push -u origin main
-```
+10 Ceylon products pre-defined in `server/models/productsSeed.js` (tea, spices, handicrafts, apparel). Person 2 loads them via the list API.
+
+## Mock Payment Rule
+
+Card number ending in `0000` = declined. Anything else = success.

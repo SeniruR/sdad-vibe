@@ -1,54 +1,59 @@
-# Person 2 — C2 List (4 prompts)
+# Person 2 — C2 Product Catalogue (4 prompts)
 
-**Branch:** `feat/c2-list`
+**Branch:** `feat/c2-list`  
+**Covers:** FR1 — display 8–12 products with name, image, price, category
 
 **Files you own:**
 - `server/controllers/c2.listController.js`
 - `server/routes/c2.list.routes.js`
-- `client/src/components/c2-list/EntityList.jsx`
+- `client/src/components/c2-list/ProductList.jsx`
 - `client/src/services/listService.js`
 - `client/src/pages/ListPage.jsx`
 - `client/src/routes/routeRegistry.jsx` (SLOT C2 only)
 
+**Seed data:** already in `server/models/productsSeed.js` (10 products)
+
 ---
 
-## Prompt 1 — List API
+## Prompt 1 — Products API
 
 ```
-Implement the list endpoint for [ENTITY] in our Express server.
+Implement GET /api/products in server/controllers/c2.listController.js.
 
-In server/controllers/c2.listController.js:
-- Import getAll and seed from server/models/entityStore.js
-- On first request, call seed() with 2-3 sample [ENTITY] using fields from our API contract
-- getAll handler returns { [entity]: items[] }
+- Import getAll, seed from server/models/entityStore.js
+- Import productsSeed from server/models/productsSeed.js
+- On first request, call seed(productsSeed) then return { products: getAll() }
+- Return 200 with products array
 
-In server/routes/c2.list.routes.js:
-- GET / returns the list from controller
-- Export router (already mounted at /api/[entity] in routes/index.js — use the actual entity path)
+The route is already wired in server/routes/c2.list.routes.js at GET /
 ```
 
-## Prompt 2 — EntityList Component
+## Prompt 2 — ProductList Component
 
 ```
-Create client/src/components/c2-list/EntityList.jsx.
+Create client/src/components/c2-list/ProductList.jsx for CeylonCart.
 
-Props: items (array), entityName (string for labels)
+Props: products (array)
 
-Display [ENTITY] as cards showing each item's main fields.
-Each card links to /detail/:id using React Router Link.
-Show "No [ENTITY] found" when empty.
+Display products as a responsive grid of cards showing:
+- Product image (img tag, placeholder if broken)
+- Name, category badge, price formatted as $XX.XX
+- Each card links to /products/:id using React Router Link
+
+Show "No products found" when empty.
+Use clean card styling with border/shadow.
 ```
 
-## Prompt 3 — List Page + Service
+## Prompt 3 — Products Page
 
 ```
-Create client/src/services/listService.js with fetchList() calling GET /api/[entity].
+Create client/src/pages/ListPage.jsx for CeylonCart product catalogue (FR1).
 
-Create client/src/pages/ListPage.jsx that:
-- Fetches list on mount
-- Shows loading and error states
-- Renders EntityList with the data
-- Has a link/button to /create
+- Fetch products on mount using listService.fetchProducts()
+- Show loading spinner and error message states
+- Render ProductList with the data
+- Page title: "Our Products"
+- Optional: category filter dropdown (All, Tea, Spices, Handicrafts, Apparel) using fetchProductsByCategory from listService.js
 ```
 
 ## Prompt 4 — Register Route
@@ -56,7 +61,7 @@ Create client/src/pages/ListPage.jsx that:
 ```
 In client/src/routes/routeRegistry.jsx, fill in SLOT C2:
 - Import ListPage
-- Add route path "/list" rendering ListPage inside Layout
+- Add route: path "/products" with ListPage inside Layout
 
 Do not edit SLOT C1, C3, or C4.
 ```

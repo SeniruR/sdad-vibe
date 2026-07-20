@@ -1,12 +1,13 @@
-// Person 1 (C1) — replace with real Header
+import { Link } from 'react-router-dom';
+// Person 1 (C1) — replace with full CeylonCart header
 export default function Header() {
   return (
     <header style={styles.header}>
-      <h1 style={styles.title}>VIBECODING App</h1>
+      <Link to="/" style={styles.title}>CeylonCart</Link>
       <nav style={styles.nav}>
-        <a href="/" style={styles.link}>Home</a>
-        <a href="/list" style={styles.link}>List</a>
-        <a href="/create" style={styles.link}>Create</a>
+        <Link to="/" style={styles.link}>Home</Link>
+        <Link to="/products" style={styles.link}>Products</Link>
+        <Link to="/cart" style={styles.link}>Cart</Link>
       </nav>
     </header>
   );
@@ -18,10 +19,10 @@ const styles = {
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: '1rem 2rem',
-    backgroundColor: '#1a1a2e',
+    backgroundColor: '#1a472a',
     color: '#fff',
   },
-  title: { margin: 0, fontSize: '1.25rem' },
+  title: { margin: 0, fontSize: '1.25rem', color: '#fff', textDecoration: 'none', fontWeight: 'bold' },
   nav: { display: 'flex', gap: '1rem' },
   link: { color: '#eee', textDecoration: 'none' },
 };

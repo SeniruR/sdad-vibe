@@ -1,10 +1,6 @@
-// Person 4 (C4) — implement getItem and deleteItem
-import { apiGet, apiDelete } from './api';
-
-export async function getItem(id) {
-  return apiGet(`/items/${id}`);
-}
-
-export async function deleteItem(id) {
-  return apiDelete(`/items/${id}`);
+// Person 4 (C4) — fetch single product
+export async function getProduct(id) {
+  const { apiGet } = await import('./api');
+  const data = await apiGet(`/products/${id}`);
+  return data.product;
 }
