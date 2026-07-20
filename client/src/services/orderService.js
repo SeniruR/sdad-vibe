@@ -1,8 +1,11 @@
-// Person 3 (C3) — order API calls
+import { apiGet, apiPost } from './api';
+
 export async function createOrder(orderData) {
-  throw new Error('Not implemented — Person 3 (C3)');
+  const data = await apiPost('/orders', orderData);
+  return data.order;
 }
 
 export async function getOrder(orderId) {
-  throw new Error('Not implemented — Person 3 (C3)');
+  const data = await apiGet(`/orders/${orderId}`);
+  return data.order;
 }
