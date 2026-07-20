@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "server": "node server.js",
+    "server": "node server/server.js",
     "client": "vite --config client/vite.config.js"
   },
   "dependencies": {

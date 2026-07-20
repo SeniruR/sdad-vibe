@@ -1,238 +1,196 @@
+import { useEffect, useRef, useState } from 'react';
+import { Link, useParams } from 'react-router-dom';
+import { useCart } from '../context/CartContext';
+import { getOrder } from '../services/orderService';
 
-import React, { useState, useEffect, useRef } from "react";
-import { useParams, Link } from "react-router-dom";
-import orderService from "../services/orderService";
-import { useCart } from "../context/CartContext";
-
-function formatCurrency(amount) {
-  // Defaults to LKR; adjust as needed.
-  if (typeof amount !== "number") return amount;
-  return `LKR ${amount.toLocaleString("en-LK", { minimumFractionDigits: 2 })}`;
+function formatPrice(amount) {
+  return `$${Number(amount).toFixed(2)}`;
 }
 
 export default function ConfirmationPage() {
   const { orderId } = useParams();
-  const [order, setOrder] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const { clearCart } = useCart();
   const cartCleared = useRef(false);
 
-  useEffect(() => {
-    let isMounted = true;
-    setLoading(true);
-    setError(null);
-    setOrder(null);
+  const [order, setOrder] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-    orderService
-      .getOrder(orderId)
-      .then((data) => {
-        if (!isMounted) return;
-        if (!data || typeof data !== "object") {
-          setError("Order not found or invalid order ID.");
-        } else {
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadOrder() {
+      setLoading(true);
+      setError('');
+
+      try {
+        const data = await getOrder(orderId);
+        if (!cancelled) {
           setOrder(data);
-          // Only clear cart once per page view, never again for remounts
           if (!cartCleared.current) {
             clearCart();
             cartCleared.current = true;
           }
         }
-      })
-      .catch((err) => {
-        setError("Order not found or invalid order ID.");
-      })
-      .finally(() => {
-        if (isMounted) setLoading(false);
-      });
+      } catch {
+        if (!cancelled) setError('Order not found or invalid order ID.');
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
 
+    loadOrder();
     return () => {
-      isMounted = false;
+      cancelled = true;
     };
   }, [orderId, clearCart]);
 
-  // ==== UI ====
   if (loading) {
-    return (
-      <div className="max-w-xl mx-auto mt-16 p-8 text-center">
-        <span className="inline-block animate-spin mr-2 align-middle" style={{ border: "4px solid #efefef", borderTop: "4px solid #2ecc40", borderRadius: "9999px", width: 28, height: 28, verticalAlign: "middle" }} />
-        <span className="align-middle font-medium text-lg">Fetching your order...</span>
-      </div>
-    );
+    return <p style={styles.center}>Loading order...</p>;
   }
 
-  if (error) {
+  if (error || !order) {
     return (
-      <div className="max-w-lg mx-auto mt-16 p-8 rounded bg-red-50 border border-red-200 text-center">
-        <div className="mb-4 text-2xl font-bold text-red-600">Order Not Found</div>
-        <div className="mb-6 text-base">{error}</div>
-        <Link
-          to="/products"
-          className="inline-block px-6 py-2 rounded bg-blue-600 text-white font-semibold hover:bg-blue-700"
-        >
+      <div style={styles.container}>
+        <h1 style={styles.title}>Order Not Found</h1>
+        <p style={styles.error}>{error || 'Could not load this order.'}</p>
+        <Link to="/products" style={styles.btn}>
           Back to Products
         </Link>
       </div>
     );
   }
 
-  // Defensive: if order loads but no data
-  if (!order) {
-    return (
-      <div className="max-w-lg mx-auto mt-16 p-8 rounded text-center">
-        <div className="mb-4 text-xl font-semibold text-gray-800">Order missing.</div>
-        <Link
-          to="/products"
-          className="inline-block px-6 py-2 rounded bg-blue-600 text-white font-semibold hover:bg-blue-700"
-        >
-          Continue Shopping
-        </Link>
-      </div>
-    );
-  }
-
-  // Shorthand access for different possible shape
-  const customer = order.customer || order.customerDetails || {};
-  const shipping = order.shippingDetails || {};
-  // Array of order items; fallback to [] if missing
   const items = Array.isArray(order.items) ? order.items : [];
 
   return (
-    <div className="max-w-2xl mx-auto mt-12 p-8 bg-white rounded shadow border">
-      {/* Heading and Success Badge */}
-      <div className="flex items-center justify-center mb-6 gap-3">
+    <div style={styles.container}>
+      <div style={styles.successBadge}>Order Confirmed!</div>
+      <h1 style={styles.title}>Thank you for your order</h1>
+      <p style={styles.orderId}>
+        Order ID: <strong>{order.orderId}</strong>
+      </p>
+
+      <section style={styles.section}>
+        <h2 style={styles.sectionTitle}>Customer Details</h2>
+        <p><strong>Name:</strong> {order.customer?.name}</p>
+        <p><strong>Address:</strong> {order.customer?.address}</p>
+        <p><strong>Contact:</strong> {order.customer?.contact}</p>
+      </section>
+
+      <section style={styles.section}>
+        <h2 style={styles.sectionTitle}>Order Items</h2>
+        {items.length === 0 ? (
+          <p>No items found.</p>
+        ) : (
+          <ul style={styles.itemList}>
+            {items.map((item) => (
+              <li key={item.productId} style={styles.itemRow}>
+                <span>{item.name} × {item.qty}</span>
+                <span>{formatPrice(item.price * item.qty)}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+        <p style={styles.total}>
+          Total: <strong>{formatPrice(order.total)}</strong>
+        </p>
+      </section>
+
+      <section style={styles.section}>
         <span
-          className="text-green-600"
           style={{
-            display: 'inline-block',
-            borderRadius: '99px',
-            background: '#eafaf1',
-            fontWeight: 700,
-            padding: '0.4rem 1.1rem',
-            fontSize: '1.02rem',
-            border: '1.5px solid #39d353',
+            ...styles.paymentBadge,
+            backgroundColor:
+              order.paymentStatus === 'success' ? '#16a34a' : '#c62828',
           }}
         >
-          <span role="img" aria-label="success" style={{ marginRight: 8 }}>✅</span>
-          Order Confirmed!
+          Payment: {order.paymentStatus === 'success' ? 'Paid' : order.paymentStatus}
         </span>
-      </div>
-      <h2 className="text-center text-2xl font-semibold mb-2">Thank you for your order</h2>
-      <div className="text-center mb-8">
-        <span className="inline-block text-sm bg-gray-50 text-gray-800 px-3 py-1 rounded font-mono tracking-wide">
-          Order ID:&nbsp;<b>{orderId}</b>
-        </span>
-      </div>
+      </section>
 
-      {/* Customer Details */}
-      <div className="mb-8">
-        <div className="border rounded-lg p-4 bg-gray-50">
-          <div className="text-md font-semibold mb-2 text-gray-700">Customer Details</div>
-          <div className="text-gray-800 mb-1"><b>Name:</b> {customer.name || shipping.name || "N/A"}</div>
-          <div className="text-gray-800 mb-1">
-            <b>Address:</b>{" "}
-            {shipping.address ||
-             customer.address ||
-             [shipping.line1, shipping.line2, shipping.city, shipping.postalCode, shipping.country].filter(Boolean).join(', ') ||
-             "N/A"}
-          </div>
-          <div className="text-gray-800 mb-1">
-            <b>Email:</b> {customer.email || shipping.email || "N/A"}
-          </div>
-          <div className="text-gray-800">
-            <b>Contact:</b> {customer.phone || customer.contact || shipping.phone || "N/A"}
-          </div>
-        </div>
-      </div>
-
-      {/* Order Items */}
-      <div className="mb-8">
-        <div className="text-md font-semibold mb-2 text-gray-700">Order Items</div>
-        <div className="overflow-x-auto">
-          <table className="min-w-full border" style={{ borderCollapse: 'collapse' }}>
-            <thead>
-              <tr style={{ background: "#f5f5f5" }}>
-                <th className="px-2 py-2 text-left text-sm font-bold border-b">Item</th>
-                <th className="px-2 py-2 text-left text-sm font-bold border-b">Unit Price</th>
-                <th className="px-2 py-2 text-left text-sm font-bold border-b">Qty</th>
-                <th className="px-2 py-2 text-right text-sm font-bold border-b">Subtotal</th>
-              </tr>
-            </thead>
-            <tbody>
-              {items.length === 0 && (
-                <tr>
-                  <td colSpan={4} className="py-4 text-center">
-                    <span className="text-gray-500 italic">No items found in this order.</span>
-                  </td>
-                </tr>
-              )}
-              {items.map((item, idx) => (
-                <tr key={item.id || item.productId || idx} style={{ borderBottom: '1px solid #eee' }}>
-                  <td className="px-2 py-2">
-                    <div className="flex items-center gap-2">
-                      {item.imageUrl && (
-                        <img src={item.imageUrl} alt={item.name} style={{ width: 38, height: 38, objectFit: 'cover', borderRadius: 4, border: "1px solid #eee" }} />
-                      )}
-                      <span>{item.name || item.productName || `Product ${item.productId || item.id || idx}`}</span>
-                    </div>
-                  </td>
-                  <td className="px-2 py-2">{formatCurrency(item.unitPrice || item.price || 0)}</td>
-                  <td className="px-2 py-2">{item.quantity || item.qty || 1}</td>
-                  <td className="px-2 py-2 text-right">
-                    {formatCurrency(
-                      (item.unitPrice || item.price || 0) * (item.quantity || item.qty || 1)
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-            <tfoot>
-              <tr>
-                <td colSpan={3} className="pt-4 pr-2 text-right font-semibold text-lg">
-                  Total:
-                </td>
-                <td className="pt-4 px-2 text-right font-bold text-lg">
-                  {formatCurrency(order.totalAmount || order.total || 0)}
-                </td>
-              </tr>
-            </tfoot>
-          </table>
-        </div>
-      </div>
-
-      {/* Payment Status */}
-      <div className="mb-8">
-        <div className="inline-block px-4 py-2 rounded text-white font-semibold"
-          style={{
-            background: order.paymentStatus === "success" || order.paymentStatus === "paid"
-              ? "#27ae60"
-              : order.paymentStatus === "pending"
-              ? "#e2a516"
-              : "#bf1f2f",
-            minWidth: 110,
-            textAlign: "center",
-            letterSpacing: "0.5px"
-          }}
-        >
-          Payment:&nbsp;
-          {order.paymentStatus === "success" || order.paymentStatus === "paid"
-            ? "Paid"
-            : order.paymentStatus === "pending"
-            ? "Pending"
-            : "Failed"}
-        </div>
-      </div>
-
-      {/* Continue Shopping */}
-      <div className="text-center">
-        <Link
-          to="/products"
-          className="inline-block px-8 py-3 rounded bg-blue-600 text-white font-semibold text-lg hover:bg-blue-700 transition"
-          style={{ boxShadow: "0 2px 8px rgba(44,62,80,0.07)" }}
-        >
-          Continue Shopping
-        </Link>
-      </div>
+      <Link to="/products" style={styles.btn}>
+        Continue Shopping
+      </Link>
     </div>
   );
 }
+
+const styles = {
+  container: {
+    maxWidth: '640px',
+    margin: '0 auto',
+    padding: '2rem 1rem',
+  },
+  center: {
+    textAlign: 'center',
+    padding: '3rem',
+    color: '#666',
+  },
+  successBadge: {
+    display: 'inline-block',
+    padding: '0.5rem 1rem',
+    backgroundColor: '#e8f5e9',
+    color: '#1a472a',
+    borderRadius: '8px',
+    fontWeight: 700,
+    marginBottom: '1rem',
+  },
+  title: {
+    fontSize: '1.75rem',
+    color: '#1a472a',
+    margin: '0 0 0.5rem',
+  },
+  orderId: {
+    color: '#666',
+    marginBottom: '1.5rem',
+  },
+  section: {
+    backgroundColor: '#fff',
+    padding: '1.25rem',
+    borderRadius: '8px',
+    marginBottom: '1.25rem',
+    boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
+  },
+  sectionTitle: {
+    fontSize: '1rem',
+    margin: '0 0 0.75rem',
+    color: '#333',
+  },
+  itemList: {
+    listStyle: 'none',
+    padding: 0,
+    margin: '0 0 1rem',
+  },
+  itemRow: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    padding: '0.5rem 0',
+    borderBottom: '1px solid #eee',
+  },
+  total: {
+    fontSize: '1.1rem',
+    margin: 0,
+  },
+  paymentBadge: {
+    display: 'inline-block',
+    padding: '0.4rem 0.75rem',
+    color: '#fff',
+    borderRadius: '6px',
+    fontWeight: 600,
+    textTransform: 'capitalize',
+  },
+  error: {
+    color: '#c62828',
+    marginBottom: '1rem',
+  },
+  btn: {
+    display: 'inline-block',
+    padding: '0.75rem 1.5rem',
+    backgroundColor: '#1a472a',
+    color: '#fff',
+    borderRadius: '8px',
+    textDecoration: 'none',
+    fontWeight: 600,
+  },
+};

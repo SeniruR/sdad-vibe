@@ -1,85 +1,57 @@
+import { useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { processPayment } from '../services/paymentService';
 
-import React, { useState, useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import paymentService from "../services/paymentService";
+const PENDING_ORDER_KEY = 'ceyloncart-pending-order-id';
 
-function SimulatedPaymentPage() {
+export default function PaymentPage() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Extract orderId: first from state, then from localStorage
-  const [orderId, setOrderId] = useState(() => {
-    const stateOrderId = location.state?.orderId;
-    if (stateOrderId) return stateOrderId;
-    const lsOrderId = localStorage.getItem("orderId");
-    if (lsOrderId) return lsOrderId;
-    return null;
-  });
+  const orderId =
+    location.state?.orderId || localStorage.getItem(PENDING_ORDER_KEY);
 
-  // Form state
-  const [nameOnCard, setNameOnCard] = useState("");
-  const [cardNumber, setCardNumber] = useState("");
-  const [expiry, setExpiry] = useState("");
-  const [cvv, setCvv] = useState("");
-  const [error, setError] = useState("");
+  const [nameOnCard, setNameOnCard] = useState('');
+  const [cardNumber, setCardNumber] = useState('');
+  const [error, setError] = useState('');
   const [processing, setProcessing] = useState(false);
-  const [formTouched, setFormTouched] = useState(false);
 
-  // If orderId not found, redirect or display warning
-  useEffect(() => {
-    if (!orderId) {
-      // Optionally, could redirect automatically:
-      // navigate("/cart");
-      // For now, stay and show the warning
-    }
-  }, [orderId, navigate]);
-
-  // Simple front-end validation
-  const isValid =
-    nameOnCard.trim().length > 0 &&
-    cardNumber.replace(/\s+/g, '').length >= 12 &&
-    expiry.trim().length >= 5 &&
-    cvv.trim().length >= 3;
-
-  const handleSubmit = async (e) => {
+  async function handleSubmit(e) {
     e.preventDefault();
-    setFormTouched(true);
-    setError("");
-    if (!isValid || !orderId) return;
+    setError('');
+
+    if (!nameOnCard.trim() || cardNumber.replace(/\s+/g, '').length < 12) {
+      setError('Please enter valid card details.');
+      return;
+    }
+
     setProcessing(true);
     try {
-      const result = await paymentService.processPayment({
+      const result = await processPayment({
         orderId,
         cardName: nameOnCard,
         cardNumber,
-        expiry,
-        cvv,
       });
+
       if (result.success) {
-        // Clear error, store orderId for confirmation page, and navigate
-        setError("");
-        localStorage.setItem("orderId", orderId);
         navigate(`/confirmation/${orderId}`);
       } else {
-        setError(result.message || "Payment failed. Please try again.");
-        setProcessing(false);
+        setError(result.message || 'Payment failed. Please try again.');
       }
-    } catch (err) {
-      setError("Something went wrong while processing payment.");
+    } catch {
+      setError('Something went wrong while processing payment.');
+    } finally {
       setProcessing(false);
     }
-  };
+  }
 
   if (!orderId) {
     return (
-      <div className="max-w-md mx-auto mt-12 p-6 bg-red-50 border border-red-300 rounded shadow">
-        <div className="mb-4 text-red-700 font-semibold">
-          No order found. Please return to checkout.
+      <div style={styles.container}>
+        <div style={styles.alert}>
+          No order found. Please complete checkout first.
         </div>
-        <button
-          className="px-6 py-2 rounded bg-blue-500 text-white font-medium hover:bg-blue-600"
-          onClick={() => navigate("/cart")}
-        >
+        <button type="button" style={styles.btn} onClick={() => navigate('/cart')}>
           Back to Cart
         </button>
       </div>
@@ -87,144 +59,124 @@ function SimulatedPaymentPage() {
   }
 
   return (
-    <div className="max-w-md mx-auto mt-12 p-6 bg-white rounded shadow border">
-      {/* Simulated Payment Disclaimer */}
-      <div className="mb-6">
-        <span className="inline-block px-3 py-1 rounded-full bg-yellow-100 text-yellow-800 font-semibold text-sm border border-yellow-300">
-          Simulated Payment — no real charges
-        </span>
-      </div>
+    <div style={styles.container}>
+      <span style={styles.badge}>Simulated Payment — no real charges</span>
+      <h1 style={styles.title}>Payment</h1>
+      <p style={styles.subtitle}>Order ID: <strong>{orderId}</strong></p>
 
-      <h2 className="text-2xl font-bold mb-4">Payment for Order #{orderId}</h2>
+      {error && <p style={styles.error}>{error}</p>}
 
-      {error && (
-        <div className="mb-4 px-3 py-2 bg-red-100 border border-red-300 text-red-800 rounded">
-          {error}
-        </div>
-      )}
-
-      <form className="space-y-5" onSubmit={handleSubmit} autoComplete="off">
-        {/* Name on Card */}
-        <div>
-          <label htmlFor="nameOnCard" className="block mb-1 font-medium">
-            Name on Card<span className="text-red-500">*</span>
-          </label>
+      <form onSubmit={handleSubmit} style={styles.form}>
+        <label style={styles.label}>
+          Name on Card *
           <input
-            id="nameOnCard"
             type="text"
-            className="w-full px-3 py-2 border rounded focus:outline-none focus:ring"
-            placeholder="Jane Doe"
             value={nameOnCard}
-            onChange={e => setNameOnCard(e.target.value)}
-            disabled={processing}
+            onChange={(e) => setNameOnCard(e.target.value)}
+            style={styles.input}
             required
+            disabled={processing}
           />
-          {formTouched && !nameOnCard.trim() && (
-            <span className="text-sm text-red-600">Required</span>
-          )}
-        </div>
+        </label>
 
-        {/* Card Number */}
-        <div>
-          <label htmlFor="cardNumber" className="block mb-1 font-medium">
-            Card Number<span className="text-red-500">*</span>
-          </label>
+        <label style={styles.label}>
+          Card Number *
           <input
-            id="cardNumber"
             type="text"
             inputMode="numeric"
-            className="w-full px-3 py-2 border rounded focus:outline-none focus:ring"
-            placeholder="1234 5678 9012 3456"
             value={cardNumber}
-            onChange={e => setCardNumber(e.target.value.replace(/[^\d ]/g, ""))}
+            onChange={(e) => setCardNumber(e.target.value.replace(/[^\d ]/g, ''))}
+            placeholder="1234 5678 9012 3456"
+            style={styles.input}
             maxLength={19}
-            disabled={processing}
             required
+            disabled={processing}
           />
-          {formTouched && cardNumber.replace(/\s+/g, '').length < 12 && (
-            <span className="text-sm text-red-600">Enter a valid card number</span>
-          )}
-        </div>
+          <span style={styles.hint}>Card ending in 0000 will be declined (test rule)</span>
+        </label>
 
-        {/* Expiry */}
-        <div className="flex gap-4">
-          <div className="flex-1">
-            <label htmlFor="expiry" className="block mb-1 font-medium">
-              Expiry Date<span className="text-red-500">*</span>
-            </label>
-            <input
-              id="expiry"
-              type="text"
-              className="w-full px-3 py-2 border rounded focus:outline-none focus:ring"
-              placeholder="MM/YY"
-              value={expiry}
-              onChange={e => setExpiry(e.target.value)}
-              maxLength={5}
-              disabled={processing}
-              required
-            />
-            {formTouched && expiry.trim().length < 5 && (
-              <span className="text-sm text-red-600">MM/YY</span>
-            )}
-          </div>
-          <div className="flex-1">
-            <label htmlFor="cvv" className="block mb-1 font-medium">
-              CVV<span className="text-red-500">*</span>
-            </label>
-            <input
-              id="cvv"
-              type="text"
-              inputMode="numeric"
-              className="w-full px-3 py-2 border rounded focus:outline-none focus:ring"
-              placeholder="123"
-              value={cvv}
-              onChange={e => setCvv(e.target.value.replace(/\D/, ""))}
-              maxLength={4}
-              disabled={processing}
-              required
-            />
-            {formTouched && cvv.trim().length < 3 && (
-              <span className="text-sm text-red-600">3 or 4 digits</span>
-            )}
-          </div>
-        </div>
-
-        <button
-          type="submit"
-          className={`w-full flex items-center justify-center gap-2 px-4 py-2 font-semibold rounded text-white ${
-            !isValid || processing
-              ? "bg-gray-400 cursor-not-allowed"
-              : "bg-green-600 hover:bg-green-700"
-          }`}
-          disabled={!isValid || processing}
-        >
-          {processing && (
-            <svg
-              className="animate-spin h-5 w-5 text-white"
-              viewBox="0 0 24 24"
-              fill="none"
-            >
-              <circle
-                className="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="4"
-              />
-              <path
-                className="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8v8z"
-              />
-            </svg>
-          )}
-          Pay Now
+        <button type="submit" style={styles.btn} disabled={processing}>
+          {processing ? 'Processing...' : 'Pay Now'}
         </button>
       </form>
     </div>
   );
 }
 
-// Replace the placeholder default export:
-export default SimulatedPaymentPage;
+const styles = {
+  container: {
+    maxWidth: '480px',
+    margin: '0 auto',
+    padding: '2rem 1rem',
+  },
+  badge: {
+    display: 'inline-block',
+    padding: '0.4rem 0.75rem',
+    backgroundColor: '#fef3c7',
+    color: '#92400e',
+    borderRadius: '999px',
+    fontSize: '0.85rem',
+    fontWeight: 600,
+    marginBottom: '1rem',
+  },
+  title: {
+    fontSize: '1.75rem',
+    color: '#1a472a',
+    margin: '0 0 0.5rem',
+  },
+  subtitle: {
+    color: '#666',
+    marginBottom: '1.5rem',
+  },
+  form: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '1rem',
+    backgroundColor: '#fff',
+    padding: '1.5rem',
+    borderRadius: '8px',
+    boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
+  },
+  label: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '0.35rem',
+    fontSize: '0.9rem',
+    fontWeight: 600,
+    color: '#444',
+  },
+  input: {
+    padding: '0.6rem 0.75rem',
+    border: '1px solid #ccc',
+    borderRadius: '6px',
+    fontSize: '1rem',
+    fontWeight: 400,
+  },
+  hint: {
+    fontSize: '0.8rem',
+    color: '#888',
+    fontWeight: 400,
+  },
+  error: {
+    color: '#c62828',
+    marginBottom: '1rem',
+  },
+  alert: {
+    padding: '1rem',
+    backgroundColor: '#fdecea',
+    color: '#c62828',
+    borderRadius: '8px',
+    marginBottom: '1rem',
+  },
+  btn: {
+    padding: '0.75rem 1.5rem',
+    backgroundColor: '#1a472a',
+    color: '#fff',
+    border: 'none',
+    borderRadius: '8px',
+    fontSize: '1rem',
+    fontWeight: 600,
+    cursor: 'pointer',
+    marginTop: '0.5rem',
+  },
+};
