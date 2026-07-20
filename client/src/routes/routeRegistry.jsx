@@ -14,6 +14,10 @@ import DetailPage from '../pages/DetailPage';         // SLOT C4 — Person 4
  * CeylonCart routes — each person adds their SLOT only.
  * Expected merge conflict: keep all route objects.
  */
+import DetailPage from '../pages/DetailPage';
+import PaymentPage from '../pages/PaymentPage';
+import ConfirmationPage from '../pages/ConfirmationPage';
+
 export const routes = [
   // SLOT C1 — Person 1
   {
@@ -40,7 +44,28 @@ export const routes = [
   { path: '/checkout', element: <Layout><CheckoutPage /></Layout> },
 
   // SLOT C4 — Person 4 (FR2, FR5, FR6)
-  { path: '/products/:id', element: <Layout><DetailPage /></Layout> },
-  // { path: '/payment', element: <Layout><PaymentPage /></Layout> },
-  // { path: '/confirmation/:orderId', element: <Layout><ConfirmationPage /></Layout> },
+  {
+    path: '/products/:id',
+    element: (
+      <Layout>
+        <DetailPage />
+      </Layout>
+    ),
+  },
+  {
+    path: '/payment',
+    element: (
+      <Layout>
+        <PaymentPage />
+      </Layout>
+    ),
+  },
+  {
+    path: '/confirmation/:orderId',
+    element: (
+      <Layout>
+        <ConfirmationPage />
+      </Layout>
+    ),
+  }
 ];
