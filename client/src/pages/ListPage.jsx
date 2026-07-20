@@ -1,101 +1,80 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import ProductList from '../components/c2-list/ProductList';
-import { fetchProducts, fetchProductsByCategory } from '../services/listService';
+import { fetchProducts } from '../services/listService';
 
 const categoryOptions = ['All', 'Tea', 'Spices', 'Handicrafts', 'Apparel'];
 
 export default function ListPage() {
-  const [products, setProducts] = useState([]);
+  const [allProducts, setAllProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
-    const loadProducts = async () => {
-      try {
-        setLoading(true);
-        setError('');
-        const data = await fetchProducts();
-        setProducts(data);
-      } catch (err) {
-        setError(err.message || 'Failed to load products');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadProducts();
+    fetchProducts()
+      .then(setAllProducts)
+      .catch((err) => setError(err.message || 'Failed to load products'))
+      .finally(() => setLoading(false));
   }, []);
 
-  const handleCategoryChange = async (event) => {
-    const category = event.target.value;
-    setSelectedCategory(category);
+  const filteredProducts = useMemo(() => {
+    let result = allProducts;
 
-    try {
-      setLoading(true);
-      setError('');
-      const data = await fetchProductsByCategory(category);
-      setProducts(data);
-    } catch (err) {
-      setError(err.message || 'Failed to filter products');
-    } finally {
-      setLoading(false);
+    if (selectedCategory !== 'All') {
+      const cat = selectedCategory.toLowerCase();
+      result = result.filter((p) => p.category?.toLowerCase() === cat);
     }
-  };
+
+    if (searchQuery.trim()) {
+      const q = searchQuery.trim().toLowerCase();
+      result = result.filter(
+        (p) =>
+          p.name?.toLowerCase().includes(q) ||
+          p.description?.toLowerCase().includes(q) ||
+          p.category?.toLowerCase().includes(q)
+      );
+    }
+
+    return result;
+  }, [allProducts, selectedCategory, searchQuery]);
 
   return (
-    <div style={styles.container}>
-      <div style={styles.headerRow}>
-        <h1 style={styles.title}>Our Products</h1>
-        <select
-          value={selectedCategory}
-          onChange={handleCategoryChange}
-          style={styles.select}
-          aria-label="Filter products by category"
-        >
-          {categoryOptions.map((option) => (
-            <option key={option} value={option}>
-              {option}
-            </option>
-          ))}
-        </select>
+    <div className="page-container">
+      <div className="products-toolbar">
+        <h1 className="page-title">Our Products</h1>
+        <div className="products-filters">
+          <input
+            type="search"
+            placeholder="Search products..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="search-input"
+            aria-label="Search products"
+          />
+          <select
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            className="select-input"
+            aria-label="Filter by category"
+          >
+            {categoryOptions.map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
-      {loading && <p style={styles.status}>Loading products...</p>}
-      {error && <p style={styles.error}>{error}</p>}
-      {!loading && !error && <ProductList products={products} />}
+      {loading && <p className="status-text">Loading products...</p>}
+      {error && <p className="form-error">{error}</p>}
+      {!loading && !error && filteredProducts.length === 0 && (
+        <p className="status-text">No products match your search.</p>
+      )}
+      {!loading && !error && filteredProducts.length > 0 && (
+        <ProductList products={filteredProducts} />
+      )}
     </div>
   );
 }
-
-const styles = {
-  container: {
-    padding: '2rem 1rem',
-    maxWidth: '1100px',
-    margin: '0 auto',
-  },
-  headerRow: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    gap: '1rem',
-    marginBottom: '1.5rem',
-    flexWrap: 'wrap',
-  },
-  title: {
-    margin: 0,
-    color: '#1f2937',
-  },
-  select: {
-    padding: '0.6rem 0.8rem',
-    borderRadius: '8px',
-    border: '1px solid #d1d5db',
-  },
-  status: {
-    color: '#6b7280',
-  },
-  error: {
-    color: '#b91c1c',
-    fontWeight: 600,
-  },
-};
