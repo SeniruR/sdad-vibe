@@ -1,4 +1,13 @@
-// Person 4 (C4) — mock payment API
+import { apiPost } from './api';
+
 export async function processPayment(paymentData) {
-  throw new Error('Not implemented — Person 4 (C4)');
+  try {
+    const data = await apiPost('/payment/process', paymentData);
+    return data;
+  } catch (err) {
+    return {
+      success: false,
+      message: err.message || 'Payment failed',
+    };
+  }
 }
