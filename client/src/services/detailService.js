@@ -1,18 +1,14 @@
-// Person 4 (C4) — fetch single product
-export async function getProduct(id) {
-  const { apiGet } = await import('./api');
-  const data = await apiGet(`/products/${id}`);
-  return data.product;
-}
-// Note: The above getProduct function does not use "/api/products/${id}" as required, nor does it handle errors. Here's the improved implementation:
-
+/**
+ * Fetch details for a single product by ID.
+ * @param {string|number} id - Product ID
+ * @returns {Promise<Object>} Product data object
+ */
 export async function getProduct(id) {
   const { apiGet } = await import('./api');
   try {
     const data = await apiGet(`/api/products/${id}`);
-    return data.product || data; // fallback in case payload is shaped differently
+    return data.product || data; // Fallback in case payload structure varies
   } catch (err) {
-    // You can enhance/reformat error message if needed
     throw new Error(
       err?.message
         ? `Failed to fetch product detail: ${err.message}`
