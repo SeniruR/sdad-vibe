@@ -6,7 +6,7 @@ import ListPage from '../pages/ListPage'; // SLOT C2 — Person 2
 // import ListPage from '../pages/ListPage';             // SLOT C2 — Person 2
 import CartPage from '../pages/CartPage';             // SLOT C3 — Person 3
 import CheckoutPage from '../pages/CheckoutPage';     // SLOT C3 — Person 3
-// import DetailPage from '../pages/DetailPage';         // SLOT C4 — Person 4
+import DetailPage from '../pages/DetailPage';         // SLOT C4 — Person 4
 // import PaymentPage from '../pages/PaymentPage';       // SLOT C4 — Person 4
 // import ConfirmationPage from '../pages/ConfirmationPage'; // SLOT C4 — Person 4
 

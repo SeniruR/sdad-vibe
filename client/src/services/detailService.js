@@ -1,3 +1,9 @@
+import { apiGet } from './api';
+
+export async function getProduct(id) {
+  const data = await apiGet(`/products/${id}`);
+  return data.product;
+}
 /**
  * Fetch details for a single product by ID.
  * @param {string|number} id - Product ID
