@@ -1,55 +1,28 @@
-/**
- * Shared in-memory store for products.
- * Person 2 seeds from productsSeed.js on first list request.
- */
+let items = [];
+let isSeeded = false;
 
-let entities = [];
-let nextId = 1;
-let seeded = false;
+const seed = (initialData = []) => {
+  if (isSeeded) {
+    return items;
+  }
 
-function getAll() {
-  return [...entities];
-}
+  const nextItems = Array.isArray(initialData) ? initialData : [];
 
-function getById(id) {
-  const numId = Number(id);
-  return entities.find((item) => item.id === numId) || null;
-}
+  items = nextItems.map((item, index) => ({
+    ...item,
+    id: item.id ?? `item-${index + 1}`,
+  }));
 
-function create(data) {
-  const item = {
-    id: nextId++,
-    ...data,
-  };
-  entities.push(item);
-  return item;
-}
+  isSeeded = true;
+  return items;
+};
 
-function remove(id) {
-  const numId = Number(id);
-  const index = entities.findIndex((item) => item.id === numId);
-  if (index === -1) return false;
-  entities.splice(index, 1);
-  return true;
-}
+const getAll = () => items;
 
-function seed(samples = []) {
-  if (seeded) return;
-  samples.forEach((sample) => create(sample));
-  seeded = true;
-}
-
-function reset() {
-  entities = [];
-  nextId = 1;
-  seeded = false;
-}
+const getById = (id) => items.find((item) => item.id === id);
 
 module.exports = {
+  seed,
   getAll,
   getById,
-  create,
-  remove,
-  seed,
-  reset,
 };

@@ -1,12 +1,17 @@
-// Person 2 (C2) — fetch products
+import { apiGet } from './api';
+
 export async function fetchProducts() {
-  const { apiGet } = await import('./api');
-  return apiGet('/products');
+  const data = await apiGet('/products');
+  return data.products || [];
 }
 
 export async function fetchProductsByCategory(category) {
-  const data = await fetchProducts();
-  const products = data.products || [];
-  if (!category || category === 'all') return products;
-  return products.filter((p) => p.category === category);
+  const products = await fetchProducts();
+
+  if (!category || category === 'All') {
+    return products;
+  }
+
+  const normalizedCategory = category.toLowerCase();
+  return products.filter((product) => product.category?.toLowerCase() === normalizedCategory);
 }
