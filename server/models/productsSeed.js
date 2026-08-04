@@ -4,7 +4,7 @@ const productsSeed = [
     name: 'Ceylon Silver Tea',
     price: 12.5,
     category: 'tea',
-    image: 'https://placehold.co/600x400?text=Ceylon+Silver+Tea',
+    image: '/products/tea-01.png',
     description: 'A fragrant black tea sourced from the misty highlands of Sri Lanka.',
   },
   {
@@ -12,7 +12,7 @@ const productsSeed = [
     name: 'Cinnamon Spice Pack',
     price: 8.99,
     category: 'spices',
-    image: 'https://placehold.co/600x400?text=Cinnamon+Spice+Pack',
+    image: '/products/tea-02.png',
     description: 'Premium cinnamon sticks and spice blends for authentic Sri Lankan flavor.',
   },
   {
@@ -20,7 +20,7 @@ const productsSeed = [
     name: 'Elephant Carving',
     price: 29.0,
     category: 'handicrafts',
-    image: 'https://placehold.co/600x400?text=Elephant+Carving',
+    image: '/products/craft-01.png',
     description: 'Handcrafted wooden elephant sculpture inspired by Sri Lankan heritage.',
   },
   {
@@ -28,7 +28,7 @@ const productsSeed = [
     name: 'Batik Sarong',
     price: 19.75,
     category: 'apparel',
-    image: 'https://placehold.co/600x400?text=Batik+Sarong',
+    image: '/products/apparel-01.png',
     description: 'Bright batik-patterned sarong made with vibrant Sri Lankan designs.',
   },
   {
@@ -36,7 +36,7 @@ const productsSeed = [
     name: 'Green Tea Sampler',
     price: 15.4,
     category: 'tea',
-    image: 'https://placehold.co/600x400?text=Green+Tea+Sampler',
+    image: '/products/tea-03.png',
     description: 'A curated selection of green and flavored teas from Sri Lanka.',
   },
   {
@@ -44,7 +44,7 @@ const productsSeed = [
     name: 'Ceylon Pepper Jar',
     price: 10.2,
     category: 'spices',
-    image: 'https://placehold.co/600x400?text=Ceylon+Pepper+Jar',
+    image: '/products/spice-02.png',
     description: 'Aromatic black pepper sourced from fertile Sri Lankan farms.',
   },
   {
@@ -52,7 +52,7 @@ const productsSeed = [
     name: 'Lantern Basket',
     price: 22.5,
     category: 'handicrafts',
-    image: 'https://placehold.co/600x400?text=Lantern+Basket',
+    image: '/products/craft-02.png',
     description: 'Woven basket lantern with traditional Sri Lankan patterns.',
   },
   {
@@ -60,7 +60,7 @@ const productsSeed = [
     name: 'Ceylon Shirt',
     price: 24.0,
     category: 'apparel',
-    image: 'https://placehold.co/600x400?text=Ceylon+Shirt',
+    image: '/products/apparel-02.png',
     description: 'Lightweight cotton shirt featuring a modern Sri Lankan print.',
   },
   {
@@ -68,7 +68,7 @@ const productsSeed = [
     name: 'Herbal Wellness Tea',
     price: 13.8,
     category: 'tea',
-    image: 'https://placehold.co/600x400?text=Herbal+Wellness+Tea',
+    image: '/products/tea-04.png',
     description: 'A soothing blend of herbal ingredients inspired by island wellness traditions.',
   },
   {
@@ -76,7 +76,7 @@ const productsSeed = [
     name: 'Brass Temple Bell',
     price: 35.0,
     category: 'handicrafts',
-    image: 'https://placehold.co/600x400?text=Temple+Bell',
+    image: '/products/craft-03.png',
     description: 'A polished brass decorative bell inspired by Sri Lankan craftsmanship.',
   },
 ];

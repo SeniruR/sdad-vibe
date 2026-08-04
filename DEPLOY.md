@@ -4,7 +4,18 @@ Simplest option: **one URL** for frontend + API. No Postgres needed (in-memory D
 
 ## 1. Push code to GitHub
 
-Make sure this folder is on GitHub (`main` branch).
+Hosting files must be on the branch Render deploys (usually `main`).
+
+If hosting changes are only on your feature branch:
+
+```bash
+git checkout main
+git pull
+git merge feature/seniru   # or your branch with hosting commits
+git push origin main
+```
+
+Or in Render → **Settings** → set **Branch** to `feature/seniru` temporarily.
 
 ## 2. Create Web Service on Render
 
@@ -15,7 +26,8 @@ Make sure this folder is on GitHub (`main` branch).
 | Field | Value |
 |-------|--------|
 | **Name** | `ceyloncart` (any name) |
-| **Root Directory** | `my-website` |
+| **Branch** | `main` (must include hosting commits — see below) |
+| **Root Directory** | *(leave blank)* — repo root is already the app |
 | **Runtime** | Node |
 | **Build Command** | `npm run build` |
 | **Start Command** | `npm start` |
