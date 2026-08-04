@@ -1,4 +1,5 @@
-const API_BASE = '/api';
+// Local: Vite proxy → /api. Hosted same-origin: /api. Split hosting: set VITE_API_URL.
+const API_BASE = import.meta.env.VITE_API_URL || '/api';
 const AUTH_KEY = 'ceyloncart-user';
 
 function getAuthHeaders() {

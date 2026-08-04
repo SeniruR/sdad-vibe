@@ -65,6 +65,7 @@ See `docs/TASKS.md` for full requirement mapping.
 
 10 Ceylon products pre-defined in `server/models/productsSeed.js` (tea, spices, handicrafts, apparel). Person 2 loads them via the list API.
 
-## Mock Payment Rule
+## Hosting
 
-Card number ending in `0000` = declined. Anything else = success.
+See [DEPLOY.md](DEPLOY.md) — one-click Render Web Service (frontend + API).
+
