@@ -12,7 +12,12 @@ function formatPrice(amount) {
 export default function CheckoutPage() {
   const navigate = useNavigate();
   const { items, total } = useCart();
-  const [form, setForm] = useState({ name: '', address: '', contact: '' });
+  const [form, setForm] = useState({
+    name: '',
+    address: '',
+    contact: '',
+    specialInstructions: '',
+  });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -52,6 +57,7 @@ export default function CheckoutPage() {
         },
         items,
         total,
+        specialInstructions: form.specialInstructions,
       });
 
       localStorage.setItem(PENDING_ORDER_KEY, order.orderId);
@@ -105,6 +111,18 @@ export default function CheckoutPage() {
               required
               placeholder="Phone or email"
               style={styles.input}
+            />
+          </label>
+
+          <label style={styles.label}>
+            Special Instructions
+            <textarea
+              name="specialInstructions"
+              value={form.specialInstructions}
+              onChange={handleChange}
+              rows={3}
+              placeholder="Delivery notes or gift message"
+              style={styles.textarea}
             />
           </label>
 

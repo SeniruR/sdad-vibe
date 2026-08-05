@@ -12,7 +12,7 @@ function validateCustomer(customer) {
 }
 
 exports.create = (req, res) => {
-  const { customer, items, total } = req.body;
+  const { customer, items, total, specialInstructions } = req.body;
 
   const customerError = validateCustomer(customer);
   if (customerError) {
@@ -35,6 +35,7 @@ exports.create = (req, res) => {
     },
     items,
     total,
+    specialInstructions: typeof specialInstructions === 'string' ? specialInstructions : '',
     paymentStatus: 'pending',
   });
 

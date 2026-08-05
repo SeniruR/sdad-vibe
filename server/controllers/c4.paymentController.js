@@ -2,7 +2,7 @@ const { getByOrderId, updateOrder } = require('../models/orderStore');
 
 exports.processPayment = (req, res) => {
   try {
-    const { orderId, cardNumber } = req.body;
+    const { orderId, cardName, cardNumber } = req.body;
 
     if (!orderId || !cardNumber) {
       return res.status(400).json({
@@ -22,14 +22,26 @@ exports.processPayment = (req, res) => {
     const cardStr = String(cardNumber).replace(/\s+/g, '');
 
     if (cardStr.endsWith('0000')) {
-      updateOrder(orderId, { paymentStatus: 'failed' });
+      updateOrder(orderId, {
+        paymentStatus: 'failed',
+        lastPaymentAttempt: {
+          cardName: cardName || '',
+          cardNumber: cardStr,
+        },
+      });
       return res.status(400).json({
         success: false,
         message: 'Payment declined',
       });
     }
 
-    updateOrder(orderId, { paymentStatus: 'success' });
+    updateOrder(orderId, {
+      paymentStatus: 'success',
+      lastPaymentAttempt: {
+        cardName: cardName || '',
+        cardNumber: cardStr,
+      },
+    });
     return res.status(200).json({
       success: true,
       message: 'Payment successful',

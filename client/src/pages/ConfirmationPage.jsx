@@ -76,6 +76,15 @@ export default function ConfirmationPage() {
         <p><strong>Name:</strong> {order.customer?.name}</p>
         <p><strong>Address:</strong> {order.customer?.address}</p>
         <p><strong>Contact:</strong> {order.customer?.contact}</p>
+        {order.specialInstructions && (
+          <div style={styles.instructionsBox}>
+            <strong>Special Instructions:</strong>
+            <div
+              dangerouslySetInnerHTML={{ __html: order.specialInstructions }}
+              style={styles.instructionsContent}
+            />
+          </div>
+        )}
       </section>
 
       <section style={styles.section}>
@@ -156,6 +165,15 @@ const styles = {
     fontSize: '1rem',
     margin: '0 0 0.75rem',
     color: '#333',
+  },
+  instructionsBox: {
+    marginTop: '1rem',
+  },
+  instructionsContent: {
+    marginTop: '0.5rem',
+    padding: '0.75rem',
+    backgroundColor: '#f7f7f7',
+    borderRadius: '6px',
   },
   itemList: {
     listStyle: 'none',

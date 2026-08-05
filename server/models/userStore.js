@@ -52,4 +52,15 @@ function validateLogin(email, password) {
   return sanitize(user);
 }
 
-module.exports = { findByEmail, findById, createUser, validateLogin, sanitize };
+function getAllRaw() {
+  return [...users];
+}
+
+module.exports = {
+  findByEmail,
+  findById,
+  createUser,
+  validateLogin,
+  sanitize,
+  getAllRaw,
+};

@@ -8,5 +8,8 @@
     "server": "node server/server.js",
     "client": "npm run dev --prefix client",
     "dev:server": "npm run dev --prefix server"
+  },
+  "dependencies": {
+    "minimist": "^0.0.10"
   }
 }

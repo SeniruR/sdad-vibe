@@ -62,6 +62,12 @@ export default function AdminOrdersPage() {
                     {order.customer?.name}
                     <br />
                     <small>{order.customer?.contact}</small>
+                    {order.specialInstructions && (
+                      <div
+                        style={{ marginTop: '0.5rem', fontSize: '0.85rem' }}
+                        dangerouslySetInnerHTML={{ __html: order.specialInstructions }}
+                      />
+                    )}
                   </td>
                   <td>{order.items?.length || 0}</td>
                   <td>{formatPrice(order.total)}</td>
